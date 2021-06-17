@@ -40,7 +40,7 @@ def series_to_supervised(data, n_in=1, n_out=1, dropnan=True):
  # %%
 
 # load dataset
-dataset = read_csv('tests/pollution.csv', header=0, index_col=0)
+dataset = read_csv('tests_tf/pollution.csv', header=0, index_col=0)
 values = dataset.values
 # integer encode direction
 encoder = LabelEncoder()

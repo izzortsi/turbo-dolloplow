@@ -24,7 +24,7 @@ def create_dataset(dataset, look_back=1):
 # fix random seed for reproducibility
 numpy.random.seed(7)
 # load the dataset
-dataframe = read_csv('tests/airline-passengers.csv', usecols=[1], engine='python')
+dataframe = read_csv('tests_tf/airline-passengers.csv', usecols=[1], engine='python')
 dataset = dataframe.values
 dataset = dataset.astype('float32')
 
