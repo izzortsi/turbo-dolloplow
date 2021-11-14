@@ -17,10 +17,11 @@ class Grabber:
     ):
 
         self.klines = self.client.get_historical_klines(
-            symbol,
-            tframe,
-            startTime,
-            endTime,
+            symbol=symbol,
+            interval=tframe,
+            limit=limit,
+            startTime=startTime,
+            endTime=endTime,
         )
         self.trim_data()
         # replaced_fromdate = fromdate.replace(" ", "-")

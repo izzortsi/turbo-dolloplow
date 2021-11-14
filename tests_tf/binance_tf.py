@@ -27,7 +27,7 @@ def split_sequences(sequences, n_steps_in, n_steps_out):
 # %%
 from binance.client import Client
 
-n_steps_in, n_steps_out = 10, 1
+STEPS_IN, STEPS_OUT = 10, 1
 
 # %%
 client=Client()
@@ -43,27 +43,31 @@ diffs = ohlcv.close - ohlcv.open
 diffs = np.array(diffs)
 vols = np.array(ohlcv.volume)
 # define input sequence
-in_seq1 = diffs[:-n_steps_in]
-in_seq2 = vols[:-n_steps_in]
-out_seq = diffs[n_steps_in:]
+in_seq1 = diffs[:-STEPS_IN]
+in_seq2 = vols[:-STEPS_IN]
+out_seq = diffs[STEPS_IN:]
 
 # convert to [rows, columns] structure
 in_seq1 = in_seq1.reshape((len(in_seq1), 1))
 in_seq2 = in_seq2.reshape((len(in_seq2), 1))
 out_seq = out_seq.reshape((len(out_seq), 1))
 # horizontally stack columns
+in_seq1
+
+# %%
+
 dataset = hstack((in_seq1, in_seq2, out_seq))
 # choose a number of time steps
-
+dataset
 # covert into input/output
-X, y = split_sequences(dataset, n_steps_in, n_steps_out)
+X, y = split_sequences(dataset, STEPS_IN, STEPS_OUT)
 # the dataset knows the number of features, e.g. 2
 n_features = X.shape[2]
 # define model
 model = Sequential()
-model.add(LSTM(100, activation='relu', return_sequences=True, input_shape=(n_steps_in, n_features)))
+model.add(LSTM(100, activation='relu', return_sequences=True, input_shape=(STEPS_IN, n_features)))
 model.add(LSTM(100, activation='relu'))
-model.add(Dense(n_steps_out))
+model.add(Dense(STEPS_OUT))
 model.compile(optimizer='adam', loss='mse')
 # fit model
 model.fit(X, y, epochs=200, verbose=0)
@@ -72,18 +76,18 @@ dataset.shape
 
 # %%
 
-dataset[10:10+n_steps_in+1, 0:2].shape
+dataset[10:10+STEPS_IN+1, 0:2].shape
 # %%
 
-x_input = dataset[50:50+n_steps_in, 0:2].reshape(1, n_steps_in, n_features)
+x_input = dataset[50:50+STEPS_IN, 0:2].reshape(1, STEPS_IN, n_features)
 x_input
 # x_input = array([[70, 75], [80, 85], [90, 95]])
-# x_input = x_input.reshape((1, n_steps_in, n_features))
+# x_input = x_input.reshape((1, STEPS_IN, n_features))
 
 
 # %%
 
 yhat = model.predict(x_input, verbose=0)
 print(yhat)
-dataset[50:50+n_steps_in+1, :].shape
-dataset[50:50+n_steps_in+1, :]
+dataset[50:50+STEPS_IN+1, :].shape
+dataset[50:50+STEPS_IN+1, :]
