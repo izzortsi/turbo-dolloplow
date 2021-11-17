@@ -18,13 +18,22 @@ mpl.rcParams['axes.grid'] = False
 #%%
 from grabber import *
 from binance.client import Client
-client=Client()
-grab = Grabber(client)
-grab.get_data(symbol="ETHUSDT", tframe="1m", startTime="10 Nov, 2021")
 
 # %%
+symbol="ETHUSDT"
+tframe = "1m"
+startTime = "15 Nov, 2021"
+endTime = None
 
-df = grab.ohlcv
+# %%
+client=Client()
+grab = Grabber(client)
+# %%
+grab.get_historical_ohlcv(symbol=symbol, tframe=tframe, startTime=startTime)
+# %%
+df = grab.ohlcvs[symbol]
+df.head(3)
+
 
 # %%
 w1 = 5

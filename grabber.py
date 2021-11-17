@@ -6,35 +6,43 @@ import pandas_ta as ta
 class Grabber:
     def __init__(self, client):
         self.client = client
+        self.klines = {}
+        self.ohlcvs = {}
 
     """
     def get_data(
     symbol="BTCUSDT", tframe="1h", limit=None, startTime=None, endTime=None
     )
     """
-    def get_data(
+    def get_historical_ohlcv(
         self, symbol="BTCUSDT", tframe="1h", limit=None, startTime=None, endTime=None
     ):
 
-        self.klines = self.client.get_historical_klines(
+        self.klines[symbol] = self.client.get_historical_klines(
             symbol,
             tframe,
             startTime,
             endTime,
         )
-        self.trim_data()
+        self.trim_ohlcv(symbol)
         # replaced_fromdate = fromdate.replace(" ", "-")
 
-    def trim_data(self):
+    def trim_ohlcv(self, symbol):
+      kldata = self.klines[symbol]
+      df = pd.DataFrame(data=kldata)
+    
+      dohlcv = df.iloc[:, [0, 1, 2, 3, 4, 5]]
+      dohlcv[0] = pd.to_datetime(dohlcv[0], unit="ms")
+      dohlcv.columns = ["date", "open", "high", "low", "close", "volume"]
+    
+      ohlcv = dohlcv.iloc[:, [1, 2, 3, 4, 5]]
+      ohlcv.set_index(pd.DatetimeIndex(dohlcv["date"]), inplace=True)
+      ohlcv = ohlcv.astype("float64")
+      self.ohlcvs[symbol] = ohlcv
+      return ohlcv
 
-        df = pd.DataFrame(data=self.klines)
-        DOHLCV = df.iloc[:, [0, 1, 2, 3, 4, 5]]
-        DOHLCV[0] = pd.to_datetime(DOHLCV[0], unit="ms")
-        DOHLCV.columns = ["date", "open", "high", "low", "close", "volume"]
-        OHLCV = DOHLCV.iloc[:, [1, 2, 3, 4, 5]]
-        OHLCV.set_index(pd.DatetimeIndex(DOHLCV["date"]), inplace=True)
-        OHLCV = OHLCV.astype("float64")
-        self.ohlcv = OHLCV
+    def get_realtime_data():
+        raise NotImplementedError
 
     def compute_indicators(self, indicators=[]):
 
