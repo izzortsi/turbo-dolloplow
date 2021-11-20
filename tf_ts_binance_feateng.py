@@ -1,5 +1,6 @@
 
 #%%
+%matplotlib widget
 import os
 import datetime
 
@@ -9,6 +10,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from pandas.core.frame import DataFrame
 import seaborn as sns
 import tensorflow as tf
 
@@ -22,31 +24,97 @@ from binance.client import Client
 # %%
 symbol="ETHUSDT"
 tframe = "1m"
-startTime = "15 Nov, 2021"
+startTime = "18 Nov, 2021"
 endTime = None
 
-# %%
+
 client=Client()
 grab = Grabber(client)
-# %%
+
 grab.get_historical_ohlcv(symbol=symbol, tframe=tframe, startTime=startTime)
-# %%
+
+
 df = grab.ohlcvs[symbol]
 df.head(3)
 
 
-# %%
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+
 w1 = 5
 w2 = 12
-# %%
+
 pmean1 = df.close.ewm(span=w1).mean()
 pstd1 = df.close.ewm(span=w1).std()
 
-# %%
+
 
 pmean2 = df.close.ewm(span=w2).mean()
 pstd2 = df.close.ewm(span=w2).std()
+
+
+
+# hmean1 = df.high.ewm(span=3).mean()
+# lmean1 = df.low.ewm(span=3).mean()
+hmean1 = df.high
+lmean1 = df.low
+# pstd2 = df.close.ewm(span=w2).std()
+
+def showcurves(c1):
+
+  fig, ax = plt.subplots()
+  ax.set_title('click on points')
+
+  line, = ax.plot(np.random.rand(100), 'o',
+                  picker=True, pickradius=5)  # 5 points tolerance
+  plt.show()
+
+  return fig, ax, line
+
+
+
+fig = plt.figure(figsize=(12, 8))
+ax = plt.axes()
+ax.plot(df.close, c="w", label=f"closes", linewidth=2)
+ax.plot(pmean1+1.17*pstd1, "w--", label=f"closes {w1} ema", linewidth=1.5)
+ax.plot(pmean1-1.17*pstd1, "w--", label=f"closes {w1} ema", linewidth=1.5)
+ax.plot(pmean1, "w-", linewidth=2, label=f"closes {w1} ema", alpha=0.8)
+ax.plot(pmean2, "y-", linewidth=2, label=f"closes {w2} ema", alpha=0.8)
+ax.plot(pmean2+0.8*pstd2, "g--", alpha=0.8)
+ax.plot(pmean2-0.8*pstd2, "r--", alpha=0.8)
+# including upper limits
+
+yerrs = [df.high-df.close, df.low-df.close]
+
+mom1 = df.close - df.close.shift(-1)
+
+colors = ["green" if c > 0 else "red" for c in mom1]
+# reds = (mom1 <= 0).map(lambda _: "red" if True else "green")
+
+ax.vlines(df.index, ymin=df.close+yerrs[1], ymax=yerrs[0]+df.close, color=colors, alpha=1)
+# ax.axhspan(yerrs[0], yerrs[1], facecolor='0.5')
+# colors = (sums.loc[sums <= 0].index).map(lambda: "red" if True)
+# if 
+# ax.errorbar(df.index, df.close, yerr=yerrs,
+#              linestyle="-", linewidth=1.5, ecolor="m")
+# ax.errorbar(df.index, df.close, yerr=df.close-df.low,
+#              linestyle="-", linewidth=2.0, color="red")
+# ax.errorbar(df.index, pmean1,  uplims=df.high-df.close, lolims=df.close - df.low,
+#              label='subsets of uplims and lolims')
+# # including lower limits
+# ax.errorbar(x, y + 1.0, xerr=xerr, yerr=yerr, lolims=lolims,
+#             linestyle=ls);
+
+
 # %%
+fig.show()
+# %%
+df.index
+# %%
+
 pmean1, pstd1, pmean2, pstd2
 # %%
 
