@@ -47,7 +47,7 @@ class ThreadedWS(Thread):
                     # print(data)
             
         # is public
-
+        # if self.public:
         client = WsToken()
         #is private
         # client = WsToken(key='', secret='', passphrase='', is_sandbox=False, url='')
@@ -84,13 +84,15 @@ class ThreadedWS(Thread):
     async def process_data(self):
         pass
 #%%
+SYM = 'BTC-USDT'
+TYPE = '1min'
 tws = ThreadedWS()
 
 # %%
-sleep(10)
-#%%
-tws.stop()
+# sleep(10)
+# #%%
+# tws.stop()
 
-#%%
-len(tws.data), tws.data
+# #%%
+# len(tws.data), tws.data
 #%%
