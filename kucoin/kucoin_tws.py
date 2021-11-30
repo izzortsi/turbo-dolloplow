@@ -40,8 +40,6 @@ class ThreadedWS(Thread):
             #'/market/ticker:ETH-USDT'
             for subscription in self.subscriptions:
                 if msg['topic'] == subscription:    
-                    if time() // 30 == 0:
-                        print(msg["data"])
                     data = self.callbacks[subscription](msg["data"])
                     self.data.append(data)
                     # print(data)
@@ -62,7 +60,7 @@ class ThreadedWS(Thread):
             await asyncio.sleep(60, loop=self.loop)
             if not self.running:
                 break
-
+        
     async def subscribe_klines(self, symbol, type, callback = lambda x: x):
         topic = f'/market/candles:{symbol}_{type}'
         await self.ws_client.subscribe(topic)
@@ -87,10 +85,13 @@ class ThreadedWS(Thread):
 tws = ThreadedWS()
 
 # %%
+await tws.subscribe_klines('BTC-USDT', '1min')
+# %%
 sleep(10)
 #%%
 tws.stop()
 
 #%%
-len(tws.data), tws.data
+print(f"""{len(tws.data)}, 
+            {tws.data}""")
 #%%

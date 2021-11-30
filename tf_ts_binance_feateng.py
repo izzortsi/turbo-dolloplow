@@ -12,10 +12,13 @@ import numpy as np
 import pandas as pd
 from pandas.core.frame import DataFrame
 import seaborn as sns
+from seaborn.utils import pmf_hist
 import tensorflow as tf
 
 mpl.rcParams['figure.figsize'] = (8, 6)
 mpl.rcParams['axes.grid'] = False
+
+plt.rcParams['axes.facecolor'] = 'white'
 
 #%%
 from grabber import *
@@ -23,7 +26,7 @@ from binance.client import Client
 
 # %%
 symbol="ETHUSDT"
-tframe = "1m"
+tframe = "5m"
 startTime = "18 Nov, 2021"
 endTime = None
 
@@ -76,25 +79,45 @@ def showcurves(c1):
 
 
 
-fig = plt.figure(figsize=(12, 8))
-ax = plt.axes()
-ax.plot(df.close, c="k", label=f"closes", linewidth=2)
-ax.plot(pmean1+1.17*pstd1, "k--", label=f"closes {w1} ema", linewidth=1.5)
-ax.plot(pmean1-1.17*pstd1, "k--", label=f"closes {w1} ema", linewidth=1.5)
-ax.plot(pmean1, "b-", linewidth=2, label=f"closes {w1} ema", alpha=0.8)
-ax.plot(pmean2, "y-", linewidth=2, label=f"closes {w2} ema", alpha=0.8)
-ax.plot(pmean2+0.8*pstd2, "g--", alpha=0.8)
-ax.plot(pmean2-0.8*pstd2, "r--", alpha=0.8)
-# including upper limits
+# %%
 
-yerrs = [df.high-df.close, df.low-df.close]
+# fig = plt.figure(figsize=(12, 8))
+# ax = plt.axes()
+# ax.plot(df.close, c="k", label=f"closes", linewidth=2)
+# ax.plot(pmean1+1.17*pstd1, "k--", label=f"closes {w1} ema", linewidth=2)
+# ax.plot(pmean1-1.17*pstd1, "k--", label=f"closes {w1} ema", linewidth=2)
+# ax.plot(pmean1, "b-", linewidth=2.5, label=f"closes {w1} ema", alpha=0.8)
+# ax.plot(pmean2, "m-", linewidth=2.5, label=f"closes {w2} ema", alpha=0.8)
+# ax.plot(pmean2+0.8*pstd2, "g-.", alpha=0.8)
+# ax.plot(pmean2-0.8*pstd2, "r-.", alpha=0.8)
 
-mom1 = df.close - df.close.shift(-1)
+# phi_seq = []
 
-colors = ["green" if c > 0 else "red" for c in mom1]
-# reds = (mom1 <= 0).map(lambda _: "red" if True else "green")
+# for j in range(2, 7):
+#   phi = sum([0.618**i for i in range(1, j)])
+#   phi_seq.append(phi)
 
-ax.vlines(df.index, ymin=df.close+yerrs[1], ymax=yerrs[0]+df.close, color=colors, alpha=1)
+# phi_seq[1:]
+
+# for phi in phi_seq:
+#   ax.plot(pmean1+phi*pstd1, "g.", label=f"closes {w1}{phi} ema", linewidth=1)
+#   ax.plot(pmean1-phi*pstd1, "r.", label=f"closes {w1}{phi} ema", linewidth=1)
+#   print(phi)
+
+
+# # including upper limits
+
+# yerrs = [df.high-df.close, df.low-df.close]
+
+# mom1 = df.close - df.close.shift(-1)
+
+# colors = ["green" if c > 0 else "red" for c in mom1]
+# # reds = (mom1 <= 0).map(lambda _: "red" if True else "green")
+
+# ax.vlines(df.index, ymin=df.close+yerrs[1], ymax=yerrs[0]+df.close, color=colors, alpha=1)
+
+# %%
+
 # ax.axhspan(yerrs[0], yerrs[1], facecolor='0.5')
 # colors = (sums.loc[sums <= 0].index).map(lambda: "red" if True)
 # if 
@@ -108,6 +131,38 @@ ax.vlines(df.index, ymin=df.close+yerrs[1], ymax=yerrs[0]+df.close, color=colors
 # ax.errorbar(x, y + 1.0, xerr=xerr, yerr=yerr, lolims=lolims,
 #             linestyle=ls);
 
+# %%
+fig = plt.figure(figsize=(12, 8))
+ax = plt.axes()
+
+ax.plot(df.close, c="k", label=f"closes", linewidth=3)
+ax.plot(pmean1, "b-", linewidth=2.5, label=f"closes {w1} ema", alpha=1)
+ax.plot(pmean2, "m-", linewidth=2.5, label=f"closes {w2} ema", alpha=1)
+
+phi_seq = []
+
+for j in range(2, 7):
+  phi = sum([0.618**i for i in range(1, j)])
+  phi_seq.append(phi)
+
+phi_seq[1:]
+
+for phi in phi_seq:
+  ax.plot((pmean1*0.8+pmean2*0.2)+phi*(pstd1*0.8+0.2*pstd2), "g--", label=f"closes {w1}{phi} ema", linewidth=1)
+  ax.plot((pmean1*0.8+pmean2*0.2)-phi*(pstd1*0.8+pstd1*0.2), "r--", label=f"closes {w1}{phi} ema", linewidth=1)
+  print(phi)
+
+
+# including upper limits
+
+yerrs = [df.high-df.close, df.low-df.close]
+
+mom1 = df.close - df.close.shift(-1)
+
+colors = ["green" if c > 0 else "red" for c in mom1]
+# reds = (mom1 <= 0).map(lambda _: "red" if True else "green")
+
+ax.vlines(df.index, ymin=df.close+yerrs[1], ymax=yerrs[0]+df.close, color=colors, alpha=1)
 
 # %%
 fig.show()
